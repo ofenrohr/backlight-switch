@@ -30,4 +30,4 @@ project(wallpaperswitch)
 #									#
 #########################################################################
 
-install(FILES wallpaperswitch.desktop DESTINATION ${XDG_APPS_INSTALL_DIR})
+install(FILES backlight-switch.desktop DESTINATION ${XDG_APPS_INSTALL_DIR})
