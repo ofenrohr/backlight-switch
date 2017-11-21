@@ -29,7 +29,7 @@
 //									//
 //////////////////////////////////////////////////////////////////////////
 
-#include "wallpaperswitch.h"
+#include "backlightswitch.h"
 
 #include <klocalizedstring.h>
 #include <kstandardaction.h>
@@ -47,7 +47,7 @@
 //									//
 //////////////////////////////////////////////////////////////////////////
 
-WallpaperSwitch::WallpaperSwitch(bool onlyWindow, QObject *pnt)
+BacklightSwitch::BacklightSwitch(bool onlyWindow, QObject *pnt)
     : QObject(pnt)
 {
     qDebug();
@@ -57,7 +57,7 @@ WallpaperSwitch::WallpaperSwitch(bool onlyWindow, QObject *pnt)
 }
 
 
-WallpaperSwitch::~WallpaperSwitch()
+BacklightSwitch::~BacklightSwitch()
 {
 }
 
@@ -67,7 +67,7 @@ WallpaperSwitch::~WallpaperSwitch()
 //									//
 //////////////////////////////////////////////////////////////////////////
 
-void WallpaperSwitch::init()
+void BacklightSwitch::init()
 {
     qDebug();
 
@@ -80,7 +80,6 @@ void WallpaperSwitch::init()
     if (mOnlyWindow)
     {
         PreferencesDialogue *d = new PreferencesDialogue(true);
-        d->setWallpaperPath(mSwitcher->wallpaperPath());
         d->open();
     }
     else
@@ -89,7 +88,7 @@ void WallpaperSwitch::init()
 
         mEnableAction = new KToggleAction(i18nc("@action:inmenu", "Enable Switching"), this);
         mEnableAction->setChecked(Settings::enableSwitcher());
-        connect(mEnableAction, &QAction::triggered, this, &WallpaperSwitch::slotSetEnableState);
+        connect(mEnableAction, &QAction::triggered, this, &BacklightSwitch::slotSetEnableState);
         mSystemTray->addMenuAction(mEnableAction);
 
         QAction *act = KStandardAction::preferences(this, SLOT(slotPreferences()), this);
@@ -110,7 +109,7 @@ void WallpaperSwitch::init()
 //									//
 //////////////////////////////////////////////////////////////////////////
 
-void WallpaperSwitch::slotAboutToQuit()
+void BacklightSwitch::slotAboutToQuit()
 {
     Settings::self()->config()->sync();			// ensure settings saved
 }
@@ -121,19 +120,18 @@ void WallpaperSwitch::slotAboutToQuit()
 //									//
 //////////////////////////////////////////////////////////////////////////
 
-void WallpaperSwitch::slotPreferences()
+void BacklightSwitch::slotPreferences()
 {
     if (mPrefsActive) return;				// avoid double invocation
 
     mPrefsActive = true;
     PreferencesDialogue d(false);
-    d.setWallpaperPath(mSwitcher->wallpaperPath());
     if (d.exec()) mEnableAction->setChecked(Settings::enableSwitcher());
     mPrefsActive = false;
 }
 
 
-void WallpaperSwitch::slotSetEnableState(bool on)
+void BacklightSwitch::slotSetEnableState(bool on)
 {
     qDebug() << on;
     Settings::setEnableSwitcher(on);

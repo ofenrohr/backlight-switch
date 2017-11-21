@@ -6,12 +6,12 @@
 
   <kcfgfile name="wallpaperswitchrc"/>
 
-  <group name="Wallpaper">
+  <group name="Backlight">
 
     <entry name="enableSwitcher" type="Bool">
-      <label>Enable the virtual desktop wallpaper switcher</label>
+      <label>Enable the virtual desktop backlight switcher</label>
       <default>true</default>
-      <tooltip>Enable switching the desktop wallpaper when the virtual desktop changes.&lt;br&gt;See the &quot;Desktop settings&quot;link for the desktop setup needed to use this.</tooltip>
+      <tooltip>Enable switching the keyboard backlight when the virtual desktop changes.</tooltip>
     </entry>
 
     <entry name="firstStartup" type="Bool">

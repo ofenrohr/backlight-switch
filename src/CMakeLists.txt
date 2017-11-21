@@ -22,7 +22,7 @@
 ##									##
 ##########################################################################
 
-project(wallpaperswitch)
+project(backlight-switch)
 
 #########################################################################
 #									#
@@ -50,20 +50,20 @@ endif (HAVE_STRERROR)
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/..")
 
-set(wallpaperswitch_SRCS
+set(backlightswitch_SRCS
   main.cpp
-  wallpaperswitch.cpp
+        backlightswitch.cpp
   preferencesdialogue.cpp
   switcher.cpp
   systemtraywidget.cpp
   MSIKeyboard.cpp
 )
-kconfig_add_kcfg_files(wallpaperswitch_SRCS settings.kcfgc)
+kconfig_add_kcfg_files(backlightswitch_SRCS settings.kcfgc)
 
-add_executable(wallpaperswitch ${wallpaperswitch_SRCS})
-add_dependencies(wallpaperswitch vcsversion)
+add_executable(backlight-switch ${backlightswitch_SRCS})
+add_dependencies(backlight-switch vcsversion)
 
-target_link_libraries(wallpaperswitch
+target_link_libraries(backlight-switch
   Qt5::Core
   Qt5::Widgets
   KF5::I18n
@@ -86,4 +86,4 @@ target_link_libraries(wallpaperswitch
 #									#
 #########################################################################
 
-install(TARGETS wallpaperswitch DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS backlight-switch DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

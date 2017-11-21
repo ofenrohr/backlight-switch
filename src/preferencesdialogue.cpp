@@ -51,6 +51,7 @@
 #include <kstandardguiitem.h>
 #include <kwindowsystem.h>
 #include <krecentdirs.h>
+#include <QtWidgets/QColorDialog>
 
 #include "debug.h"
 #include "settings.h"
@@ -84,7 +85,7 @@ PreferencesDialogue::PreferencesDialogue(bool soloMode, QWidget *pnt)
     connect(button(QDialogButtonBox::Help), &QPushButton::clicked, this, &PreferencesDialogue::slotAbout);
 
     mWallpaperPage = new PreferencesWallpaperPage(this);
-    KPageWidgetItem *page = addPage(mWallpaperPage, i18n("Wallpaper"));
+    KPageWidgetItem *page = addPage(mWallpaperPage, i18n("Backlight"));
     page->setIcon(QIcon::fromTheme("user-desktop"));
 
     setMinimumSize(500, 240);
@@ -113,11 +114,11 @@ PreferencesDialogue::~PreferencesDialogue()
 }
 
 
-void PreferencesDialogue::setWallpaperPath(const QString &path)
+void PreferencesDialogue::setBacklightColor(const QColor &color)
 {
     PreferencesWallpaperPage *wpPage = qobject_cast<PreferencesWallpaperPage *>(mWallpaperPage);
     Q_ASSERT(wpPage!=NULL);
-    wpPage->setWallpaperPath(path);
+    wpPage->setBacklightColor(color);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -172,42 +173,29 @@ PreferencesWallpaperPage::PreferencesWallpaperPage(QWidget *pnt)
     mWallpaperList->setTextElideMode(Qt::ElideMiddle);
 
     QStringList headers;
-    headers << i18n("Desktop") << i18n("Wallpaper");
+    headers << i18n("Desktop") << i18n("Color");
     mWallpaperList->setHeaderLabels(headers);
     mWallpaperList->setColumnCount(2);
 
     connect(mWallpaperList, SIGNAL(itemSelectionChanged()), SLOT(slotUpdateButtonStates()));
-    connect(mWallpaperList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *,int)), SLOT(slotSetWallpaper(QTreeWidgetItem *)));
+    connect(mWallpaperList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *,int)), SLOT(slotSetBacklightColor(QTreeWidgetItem *)));
     gl->addWidget(mWallpaperList, 1, 0, 1, -1);
 
     mSetWallpaperButton = new QPushButton(this);
-    mSetWallpaperButton->setText(i18nc("@action:button", "Set Wallpaper..."));
+    mSetWallpaperButton->setText(i18nc("@action:button", "Set backlight color..."));
     mSetWallpaperButton->setIcon(QIcon::fromTheme("view-catalog"));
 
-    connect(mSetWallpaperButton, SIGNAL(clicked(bool)), SLOT(slotSetWallpaper()));
+    connect(mSetWallpaperButton, SIGNAL(clicked(bool)), SLOT(slotSetBacklightColor()));
     gl->addWidget(mSetWallpaperButton, 2, 0, Qt::AlignLeft);
-
-    QLabel *helpLabel = new QLabel(i18n("<qt>Help for required <a href=\"settingshelp\">Plasma desktop settings</a>"));
-    connect(helpLabel, SIGNAL(linkActivated(const QString &)), SLOT(slotInfoLinkActivated(const QString &)));
-    gl->addWidget(helpLabel, 2, 1, Qt::AlignRight);
 
     gl->setRowStretch(1, 1);
 }
 
 
-void PreferencesWallpaperPage::slotInfoLinkActivated(const QString &url)
+static void setItemColor(QTreeWidgetItem *item, const QColor &color)
 {
-    if (url!="settingshelp") return;
-    QWhatsThis::showText(QCursor::pos(),
-                         i18n("<qt>The desktop settings needed to use the wallpaper switcher are:<ul><li>Layout = <b>Folder View</b> or <b>Desktop</b><li>Wallpaper Type = <b>Slideshow</b><li>Positioning = <b>Scaled</b><li>Location = <b>%1</b><li>Change every = <b>12 hours</b>",
-                              mWallpaperPath));
-}
-
-
-static void setItemImageFile(QTreeWidgetItem *item, const QString &file)
-{
-    item->setText(1, file);
-    if (!file.isEmpty()) item->setIcon(1, QIcon(file));
+    item->setText(1, color.name());
+    //if (!file.isEmpty()) item->setIcon(1, QIcon(file));
 }
 
 
@@ -230,7 +218,7 @@ void PreferencesWallpaperPage::loadSettings()
         QTreeWidgetItem *item = new QTreeWidgetItem;
         item->setText(0, i18n("%1 - %2", i, name));
         item->setData(0, Qt::UserRole, i);
-        setItemImageFile(item, grp.readEntry(QString::number(i), ""));
+        setItemColor(item, grp.readEntry(QString::number(i), ""));
 
         mWallpaperList->addTopLevelItem(item);
     }
@@ -265,7 +253,7 @@ void PreferencesWallpaperPage::slotUpdateButtonStates()
 }
 
 
-void PreferencesWallpaperPage::slotSetWallpaper(QTreeWidgetItem *item)
+void PreferencesWallpaperPage::slotSetBacklightColor(QTreeWidgetItem *item)
 {
     if (item==NULL)					// by button click
     {							// set for current selection
@@ -277,35 +265,20 @@ void PreferencesWallpaperPage::slotSetWallpaper(QTreeWidgetItem *item)
     const int desktopNum = item->data(0, Qt::UserRole).toInt();
     qDebug() << "for desktop" << desktopNum;
 
-    QMimeDatabase db;
+    // read previous color
+    KConfigSkeletonItem *ski = Settings::self()->wallpaperForDesktopItem();
+    Q_ASSERT(ski!=NULL);
+    const KConfigGroup grp = Settings::self()->config()->group(ski->group());
+    QColor prevColor = grp.readEntry(QString::number(desktopNum), "");
 
-    QList<QByteArray> imageFormats = QImageReader::supportedMimeTypes();
-    QStringList imageFilters;
-    QStringList allPatterns;
-    foreach (const QByteArray &format, imageFormats)
-    {
-        if (format.isEmpty()) continue;
+    // show color picker dialog
+    QColor color = QColorDialog::getColor(prevColor);
 
-        const QMimeType mime = db.mimeTypeForName(format);
-        if (!mime.isValid()) continue;
-        imageFilters << mime.filterString();
-        allPatterns << mime.globPatterns();
-    }
+    // save color
+    setItemColor(item, color);
 
-    qSort(imageFilters);
-    imageFilters.prepend(i18nc("Qt file filter format", "All image files (%1)", allPatterns.join(' ')));
-
-    const QString recentClass(":wallpaper");
-    QString recentDir = KRecentDirs::dir(recentClass);
-
-    QString file = QFileDialog::getOpenFileName(this, i18n("Select Wallpaper File"),
-                                                recentDir, imageFilters.join(";;"));
-    if (file.isEmpty()) return;
-
-    QString rd = QFileInfo(file).path();
-    KRecentDirs::add(recentClass, rd);
-
-    setItemImageFile(item, file);
+    saveSettings();
+    Settings::self()->save();
 }
 
 

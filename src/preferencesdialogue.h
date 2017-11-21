@@ -47,7 +47,7 @@ public:
     explicit PreferencesDialogue(bool soloMode, QWidget *pnt = NULL);
     virtual ~PreferencesDialogue();
 
-    void setWallpaperPath(const QString &path);
+    void setBacklightColor(const QColor &color);
 
 protected:
     void loadSettings();
@@ -96,11 +96,11 @@ public:
     void loadSettings();
     void saveSettings();
 
-    void setWallpaperPath(const QString &path)		{ mWallpaperPath = path; }
+    void setBacklightColor(const QColor &color)		{ mBacklightColor = color; }
 
 protected slots:
-    void slotSetWallpaper(QTreeWidgetItem *item = NULL);
-    void slotInfoLinkActivated(const QString &url);
+    void slotSetBacklightColor(QTreeWidgetItem *item = NULL);
+    //void slotInfoLinkActivated(const QString &url);
 
 private slots:
     void slotUpdateButtonStates();
@@ -110,7 +110,8 @@ private:
     QTreeWidget *mWallpaperList;
     QPushButton *mSetWallpaperButton;
 
-    QString mWallpaperPath;
+    //QString mWallpaperPath;
+    QColor mBacklightColor;
 };
 
 #endif							// PREFERENCESDIALOGUE_H

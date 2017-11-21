@@ -38,11 +38,11 @@
 #include <kdbusservice.h>
 #include <kcrash.h>
 
-#include "wallpaperswitch.h"
+#include "backlightswitch.h"
 #include "debug.h"
 #include "version.h"
 
-Q_LOGGING_CATEGORY(DEBUGCAT, "wallpaperswitch")
+Q_LOGGING_CATEGORY(DEBUGCAT, "backlight-switch")
 
 //////////////////////////////////////////////////////////////////////////
 //									//
@@ -52,8 +52,8 @@ Q_LOGGING_CATEGORY(DEBUGCAT, "wallpaperswitch")
  
 int main(int argc,char *argv[])
 {
-    KAboutData aboutData("wallpaperswitch",		// componentName
-                         i18n("Wallpaper Switcher"),	// displayName
+    KAboutData aboutData("backlight-switch",		// componentName
+                         i18n("Backlight Switcher"),	// displayName
 #ifdef VCS_HAVE_VERSION
                          ( VERSION " (" VCS_TYPE_STRING " " VCS_REVISION_STRING ")" ),
 #else
@@ -63,14 +63,19 @@ int main(int argc,char *argv[])
                          KAboutLicense::GPL,
                          i18n("Copyright (c) 2016,2017 Jonathan Marten"),
                          QString::null,			// text
-                         "http://www.github.com/martenjj/wallpaperswitch",
+                         "http://www.github.com/ofenrohr/backlight-switch",
 							// homePageAddress
-                         "http://www.github.com/martenjj/wallpaperswitch/issues");
+                         "http://www.github.com/ofenrohr/backlight-switch/issues");
 							// bugsEmailAddress
     aboutData.addAuthor(i18n("Jonathan Marten"),
                          QString::null,
                         "jjm@keelhaul.me.uk",
                         "http://www.keelhaul.me.uk");
+
+    aboutData.addAuthor(i18n("Tom Vincent Peters"),
+                        "MSI keyboard backlight color selection",
+                        "code@vincent-peters.de",
+                        QString::null);
 
     KLocalizedString::setApplicationDomain(qPrintable(aboutData.componentName()));
     KCrash::setCrashHandler();				// enable standard DrKonqi
@@ -96,8 +101,8 @@ int main(int argc,char *argv[])
     parser.process(app);
     aboutData.processCommandLine(&parser);
 
-    WallpaperSwitch *sw = new WallpaperSwitch(parser.isSet("w"));
-    QObject::connect(&service, &KDBusService::activateRequested, sw, &WallpaperSwitch::slotPreferences);
+    BacklightSwitch *sw = new BacklightSwitch(parser.isSet("w"));
+    QObject::connect(&service, &KDBusService::activateRequested, sw, &BacklightSwitch::slotPreferences);
 
     return (app.exec());				// switcher will show itself
 }

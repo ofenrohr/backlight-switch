@@ -32,13 +32,13 @@ class SystemTrayWidget;
 class Switcher;
 
 
-class WallpaperSwitch : public QObject
+class BacklightSwitch : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit WallpaperSwitch(bool onlyWindow, QObject *pnt = NULL);
-    virtual ~WallpaperSwitch();
+    explicit BacklightSwitch(bool onlyWindow, QObject *pnt = NULL);
+    virtual ~BacklightSwitch();
 
 public slots:
     void slotPreferences();
@@ -48,7 +48,7 @@ protected slots:
     void slotSetEnableState(bool on);
 
 private:
-    Q_DISABLE_COPY(WallpaperSwitch)
+    Q_DISABLE_COPY(BacklightSwitch)
     void init();
 
 private:

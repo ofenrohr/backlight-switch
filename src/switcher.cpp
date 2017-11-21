@@ -71,34 +71,6 @@ Switcher::Switcher(QObject *pnt)
 
     keyboard.initKeyboard();
 
-    mIndexNumber = 0;
-
-    // Find a temporary directory to use.  This cannot be a cache or temporary
-    // location because it needs to be permanent;  if it does not exist on Plasma
-    // startup then a KDirWatch will not be installed on it, so it will not
-    // notice any changes.  So we use the QStandardPaths::AppLocalDataLocation
-    // which will hopefully be within the user's home directory.
-    QString tempDir = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-    qDebug() << "using temp dir" << tempDir;
-    mTempDir = new QDir(tempDir);
-    if (!mTempDir->exists())
-    {
-        QString base = mTempDir->dirName();
-        mTempDir->cdUp();
-        if (!mTempDir->mkdir(base))
-        {
-            qDebug() << "cannot create directory" << mTempDir->absoluteFilePath(base);
-#ifdef HAVE_STRERROR
-#ifdef HAVE_ERRNO_H
-            qDebug() << "reason" << strerror(errno);
-#endif
-#endif
-            return;
-        }
-        mTempDir->cd(base);
-        qDebug() << "created temp dir" << mTempDir->absolutePath();
-    }
-
     connect(KWindowSystem::self(), SIGNAL(currentDesktopChanged(int)), SLOT(slotDesktopChanged(int)));
     QTimer::singleShot(0, this, SLOT(slotDesktopChanged()));	// set for current desktop
 
@@ -108,8 +80,6 @@ Switcher::Switcher(QObject *pnt)
 
 Switcher::~Switcher()
 {
-    delete mTempDir;
-    qDebug() << "done";
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -126,101 +96,16 @@ void Switcher::slotDesktopChanged(int desktop)
     qDebug() << "to" << desktop;
 #endif // DEBUG_CHANGE
 
-    MSIKeyboard::Color color { 0, 0, 255 };
-
-    switch (desktop) {
-        case 1:
-            color = {0, 255, 0};
-            break;
-        case 2:
-            color = {255, 0, 0};
-            break;
-        case 3:
-            color = {255, 0, 255};
-            break;
-        case 4:
-            color = {0, 0, 255};
-            break;
-    }
-    keyboard.setColor(MSIKeyboard::RegionLeft, color);
-    keyboard.setColor(MSIKeyboard::RegionMiddle, color);
-    keyboard.setColor(MSIKeyboard::RegionRight, color);
-
-    /*
     KConfigSkeletonItem *ski = Settings::self()->wallpaperForDesktopItem();
     Q_ASSERT(ski!=NULL);
     const KConfigGroup grp = Settings::self()->config()->group(ski->group());
 
-    QString file = grp.readEntry(QString::number(desktop), "");
-    if (file.isEmpty())
-    {
-        qDebug() << "No wallpaper configured for desktop" << desktop;
-        return;
-    }
+    QColor color = grp.readEntry(QString::number(desktop), "");
 
-    if (!QFile::exists(file))
-    {
-        qDebug() << "File" << file << "not found for desktop" << desktop;
-        return;
-    }
-
-    if (!mTempDir->exists())
-    {
-        qDebug() << "No temporary directory available!";
-        return;
-    }
-
-    QStringList files = mTempDir->entryList(QDir::Files|QDir::NoDotAndDotDot|QDir::System);
-    foreach (const QString &oldFile, files)		// "System" matches broken symlinks
-    {
-        // Stop watching for changes to the old background file
-        const QString oldTarget = QFile::symLinkTarget(mTempDir->absoluteFilePath(oldFile));
-        if (!oldTarget.isEmpty()) KDirWatch::self()->removeFile(oldTarget);
-
-        // Remove the old symbolic link to the background file
-        if (!mTempDir->remove(oldFile))
-        {
-            qDebug() << "unable to remove existing" << oldFile;
-#ifdef HAVE_STRERROR
-#ifdef HAVE_ERRNO_H
-        qDebug() << "reason" << strerror(errno);
-#endif // HAVE_ERRNO_H
-#endif // HAVE_STRERROR
-        }
-#ifdef DEBUG_CHANGE
-        else qDebug() << "removed existing" << file;
-#endif // DEBUG_CHANGE
-    }
-
-    // The watched pathname has to change, so that the background plugin will
-    // receive 'deleted' and 'created' signals.
-    ++mIndexNumber;
-    QString linkPath = mTempDir->absoluteFilePath(QString::number(mIndexNumber));
-
-    // The link name has to have a valid image file suffix in order that it will
-    // be accepted.  See Image::pathCreated() and BackgroundFinder::suffixes().
-    // It doesn't have to actually match the file contents, though, so we
-    // set one that is acceptable in order to allow any image file format.
-    linkPath += ".png";
-
-    if (!QFile::link(file, linkPath))
-    {
-        qDebug() << "cannot link" << linkPath << "->" << file;
-#ifdef HAVE_STRERROR
-#ifdef HAVE_ERRNO_H
-        qDebug() << "reason" << strerror(errno);
-#endif // HAVE_ERRNO_H
-#endif // HAVE_STRERROR
-        return;
-    }
-
-#ifdef DEBUG_CHANGE
-    qDebug() << "created link" << linkPath << "->" << file;
-#endif // DEBUG_CHANGE
-
-    // Watch the actual background file for changes.
-    KDirWatch::self()->addFile(file);
-     */
+    MSIKeyboard::Color keyboardColor { (unsigned char) color.red(), (unsigned char) color.green(), (unsigned char) color.blue() };
+    keyboard.setColor(MSIKeyboard::RegionLeft, keyboardColor);
+    keyboard.setColor(MSIKeyboard::RegionMiddle, keyboardColor);
+    keyboard.setColor(MSIKeyboard::RegionRight, keyboardColor);
 }
 
 
@@ -232,8 +117,3 @@ void Switcher::slotFileChanged(const QString &file)
     slotDesktopChanged(0);				// update for current desktop
 }
 
-
-QString Switcher::wallpaperPath() const
-{
-    return (mTempDir==NULL ? QString::null : mTempDir->absolutePath());
-}

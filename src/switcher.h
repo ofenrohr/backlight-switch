@@ -39,15 +39,11 @@ public:
     explicit Switcher(QObject *pnt = NULL);
     virtual ~Switcher();
 
-    QString wallpaperPath() const;
-
 protected slots:
     void slotDesktopChanged(int desktop = 0);
     void slotFileChanged(const QString &file);
 
 private:
-    int mIndexNumber;
-    QDir *mTempDir;
     MSIKeyboard keyboard;
 };
 
