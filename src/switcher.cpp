@@ -69,6 +69,8 @@ Switcher::Switcher(QObject *pnt)
 {
     qDebug();
 
+    keyboard.initKeyboard();
+
     mIndexNumber = 0;
 
     // Find a temporary directory to use.  This cannot be a cache or temporary
@@ -124,6 +126,27 @@ void Switcher::slotDesktopChanged(int desktop)
     qDebug() << "to" << desktop;
 #endif // DEBUG_CHANGE
 
+    MSIKeyboard::Color color { 0, 0, 255 };
+
+    switch (desktop) {
+        case 1:
+            color = {0, 255, 0};
+            break;
+        case 2:
+            color = {255, 0, 0};
+            break;
+        case 3:
+            color = {255, 0, 255};
+            break;
+        case 4:
+            color = {0, 0, 255};
+            break;
+    }
+    keyboard.setColor(MSIKeyboard::RegionLeft, color);
+    keyboard.setColor(MSIKeyboard::RegionMiddle, color);
+    keyboard.setColor(MSIKeyboard::RegionRight, color);
+
+    /*
     KConfigSkeletonItem *ski = Settings::self()->wallpaperForDesktopItem();
     Q_ASSERT(ski!=NULL);
     const KConfigGroup grp = Settings::self()->config()->group(ski->group());
@@ -197,6 +220,7 @@ void Switcher::slotDesktopChanged(int desktop)
 
     // Watch the actual background file for changes.
     KDirWatch::self()->addFile(file);
+     */
 }
 
 

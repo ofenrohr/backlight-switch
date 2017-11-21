@@ -56,6 +56,7 @@ set(wallpaperswitch_SRCS
   preferencesdialogue.cpp
   switcher.cpp
   systemtraywidget.cpp
+  MSIKeyboard.cpp
 )
 kconfig_add_kcfg_files(wallpaperswitch_SRCS settings.kcfgc)
 
@@ -76,6 +77,7 @@ target_link_libraries(wallpaperswitch
   KF5::Notifications
   KF5::DBusAddons
   KF5::Crash
+  ${LIBUSB_LIBRARIES}
 )
 
 #########################################################################

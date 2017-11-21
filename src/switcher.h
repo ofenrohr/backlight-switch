@@ -26,6 +26,7 @@
 #define SWITCHER_H
 
 #include <qobject.h>
+#include "MSIKeyboard.h"
 
 class QDir;
 
@@ -47,6 +48,7 @@ protected slots:
 private:
     int mIndexNumber;
     QDir *mTempDir;
+    MSIKeyboard keyboard;
 };
 
 #endif							// SWITCHER_H

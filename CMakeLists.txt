@@ -53,6 +53,18 @@ include(CheckIncludeFile)
 
 #########################################################################
 #									#
+#  libusb						#
+#									#
+#########################################################################
+
+find_package(PkgConfig)
+pkg_check_modules(LIBUSB REQUIRED hidapi-libusb)
+message(STATUS "libusb libs: " ${LIBUSB_LIBRARIES})
+message(STATUS "libusb includes: " ${LIBUSB_INCLUDE_DIRS})
+include_directories(${LIBUSB_INCLUDE_DIRS})
+
+#########################################################################
+#									#
 #  VCS version tracking							#
 #									#
 #########################################################################
