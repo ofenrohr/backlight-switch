@@ -52,7 +52,7 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}/..")
 
 set(backlightswitch_SRCS
   main.cpp
-        backlightswitch.cpp
+  backlightswitch.cpp
   preferencesdialogue.cpp
   switcher.cpp
   systemtraywidget.cpp
@@ -87,3 +87,4 @@ target_link_libraries(backlight-switch
 #########################################################################
 
 install(TARGETS backlight-switch DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+INSTALL(FILES udev/90-msi-keyboard.rules DESTINATION /etc/udev/rules.d)

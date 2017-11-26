@@ -4,7 +4,11 @@ Backlight Switcher for KDE Plasma 5
 This little system tray application changes the backlight color of 
 MSI keyboards depending on the current vitual desktop.
 
-You need a steelseries keyboard to use this tool.
+You need a Steelseries keyboard to use this tool. Output of lsusb on my machine:
+```
+Bus 002 Device 003: ID 1770:ff00
+[...]
+```
 
 
 Building and installing
@@ -28,11 +32,19 @@ and libraries.  Depending on your distro, you may need to install
 additional packages for these.  If you are running Kubuntu then see
 the README.kubuntu file for a list of packages required.
 
+`make install` will add a udev rule to `/etc/udev/rules.d` that allows 
+access to the backlight device without root privileges. You might need
+to reboot or execute the following commands to make it work without root:
+```
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
 
 Running and configuration
 -------------------------
 
-After the files are installed above, start the switcher either from
+After the files are installed, start the switcher either from
 whichever desktop launcher you use (it will appear in the "Utilities"
 category), or by typing the command 'backlight-switch' in a terminal or
 KRunner (summoned by typing Alt-F2).  The "desktop" icon will appear
@@ -64,12 +76,15 @@ the debugging messages for anything about missing files or any other
 problems.
 
 If neither of this resolves the problem then please raise an issue in
-GitHub (http://github.com/ofenrohr/backlight-switch).  Do not raise a
+[GitHub](http://github.com/ofenrohr/backlight-switch).  Do not raise a
 bug against KDE Plasma.
 
 
-Original application
---------------------
+Original applications
+---------------------
 
-Thanks to Jonathan Marten for creating the wallpaperswitcher application 
+Thanks to Jonathan Marten for creating the 
+[wallpaperswitch](https://github.com/martenjj/wallpaperswitch) application 
 that this application is built upon.
+
+Thanks to Steve Lacy for [msi-keyboard](https://github.com/stevelacy/msi-keyboard).

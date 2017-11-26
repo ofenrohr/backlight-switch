@@ -61,7 +61,7 @@ int main(int argc,char *argv[])
 #endif
                          i18n("Switch wallpaper when virtual desktop changes"),
                          KAboutLicense::GPL,
-                         i18n("Copyright (c) 2016,2017 Jonathan Marten"),
+                         i18n("Copyright (c) 2016,2017 Jonathan Marten, Tom Vincent Peters"),
                          QString::null,			// text
                          "http://www.github.com/ofenrohr/backlight-switch",
 							// homePageAddress
