@@ -69,12 +69,12 @@ Switcher::Switcher(QObject *pnt)
 {
     qDebug();
 
-    keyboard.initKeyboard();
+    getKeyboard()->initKeyboard();
 
     connect(KWindowSystem::self(), SIGNAL(currentDesktopChanged(int)), SLOT(slotDesktopChanged(int)));
     QTimer::singleShot(0, this, SLOT(slotDesktopChanged()));	// set for current desktop
 
-    connect(KDirWatch::self(), SIGNAL(dirty(const QString &)), SLOT(slotFileChanged(const QString &)));
+    //connect(KDirWatch::self(), SIGNAL(dirty(const QString &)), SLOT(slotFileChanged(const QString &)));
 }
 
 
@@ -87,25 +87,33 @@ Switcher::~Switcher()
 //									//
 //////////////////////////////////////////////////////////////////////////
 
-void Switcher::slotDesktopChanged(int desktop)
-{
+void Switcher::slotDesktopChanged(int desktop) {
     if (!Settings::enableSwitcher()) return;
 
-    if (desktop==0) desktop = KWindowSystem::currentDesktop();
+    if (desktop == 0) desktop = KWindowSystem::currentDesktop();
 #ifdef DEBUG_CHANGE
     qDebug() << "to" << desktop;
 #endif // DEBUG_CHANGE
 
     KConfigSkeletonItem *ski = Settings::self()->wallpaperForDesktopItem();
-    Q_ASSERT(ski!=NULL);
+    Q_ASSERT(ski != NULL);
     const KConfigGroup grp = Settings::self()->config()->group(ski->group());
-
     QColor color = grp.readEntry(QString::number(desktop), "");
+    setColor(color);
+}
 
+void Switcher::setColor(QColor color) {
     MSIKeyboard::Color keyboardColor { (unsigned char) color.red(), (unsigned char) color.green(), (unsigned char) color.blue() };
-    keyboard.setColor(MSIKeyboard::RegionLeft, keyboardColor);
-    keyboard.setColor(MSIKeyboard::RegionMiddle, keyboardColor);
-    keyboard.setColor(MSIKeyboard::RegionRight, keyboardColor);
+    getKeyboard()->setColor(MSIKeyboard::RegionLeft, keyboardColor);
+    getKeyboard()->setColor(MSIKeyboard::RegionMiddle, keyboardColor);
+    getKeyboard()->setColor(MSIKeyboard::RegionRight, keyboardColor);
+}
+
+MSIKeyboard *Switcher::getKeyboard() {
+    if (Switcher::keyboard == nullptr) {
+        Switcher::keyboard = new MSIKeyboard();
+    }
+    return Switcher::keyboard;
 }
 
 
@@ -116,4 +124,6 @@ void Switcher::slotFileChanged(const QString &file)
 #endif // DEBUG_CHANGE
     slotDesktopChanged(0);				// update for current desktop
 }
+
+MSIKeyboard* Switcher::keyboard;
 

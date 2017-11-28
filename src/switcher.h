@@ -31,6 +31,7 @@
 class QDir;
 
 
+
 class Switcher : public QObject
 {
     Q_OBJECT
@@ -39,12 +40,17 @@ public:
     explicit Switcher(QObject *pnt = NULL);
     virtual ~Switcher();
 
+    static MSIKeyboard *getKeyboard();
+    static void setColor(QColor color);
+
 protected slots:
     void slotDesktopChanged(int desktop = 0);
     void slotFileChanged(const QString &file);
 
 private:
-    MSIKeyboard keyboard;
+    static MSIKeyboard *keyboard;
 };
+
+
 
 #endif							// SWITCHER_H

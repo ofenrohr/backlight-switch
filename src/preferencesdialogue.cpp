@@ -40,7 +40,6 @@
 #include <qtreewidget.h>
 #include <qwhatsthis.h>
 #include <qmimedatabase.h>
-#include <qmimetype.h>
 
 #include <QStandardItem>
 
@@ -50,11 +49,11 @@
 #include <kaboutdata.h>
 #include <kstandardguiitem.h>
 #include <kwindowsystem.h>
-#include <krecentdirs.h>
 #include <QtWidgets/QColorDialog>
 
 #include "debug.h"
 #include "settings.h"
+#include "switcher.h"
 
 //////////////////////////////////////////////////////////////////////////
 //									//
@@ -272,13 +271,26 @@ void PreferencesWallpaperPage::slotSetBacklightColor(QTreeWidgetItem *item)
     QColor prevColor = grp.readEntry(QString::number(desktopNum), "");
 
     // show color picker dialog
-    QColor color = QColorDialog::getColor(prevColor);
+    QColor color;
+    QColorDialog colorDialog;
+    QObject::connect(&colorDialog, SIGNAL(currentColorChanged(QColor)), this, SLOT(showColorSlot(QColor)));
+    colorDialog.exec();
+    color = colorDialog.currentColor();
+    if (!color.isValid()) {
+        return;
+    }
+    QObject::disconnect(&colorDialog, SIGNAL(currentColorChanged(QColor)), this, SLOT(showColorSlot(QColor)));
 
     // save color
     setItemColor(item, color);
 
     saveSettings();
     Settings::self()->save();
+}
+
+void PreferencesWallpaperPage::showColorSlot(QColor col) {
+    //qDebug() << "showColorSlot" << col;
+    Switcher::setColor(col);
 }
 
 

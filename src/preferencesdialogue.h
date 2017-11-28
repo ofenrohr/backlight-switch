@@ -104,6 +104,7 @@ protected slots:
 
 private slots:
     void slotUpdateButtonStates();
+    void showColorSlot(QColor col);
 
 private:
     QCheckBox *mEnableSwitcherCheck;
