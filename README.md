@@ -4,6 +4,9 @@ Backlight Switcher for KDE Plasma 5
 This little system tray application changes the backlight color of 
 MSI keyboards depending on the current vitual desktop.
 
+
+![Backlight switcher demonstratio](https://github.com/ofenrohr/backlight-switch/raw/master/msi-keyboard.gif "Backlight switcher demonstration")
+
 You need a Steelseries keyboard to use this tool. Output of lsusb on my machine:
 ```
 Bus 002 Device 003: ID 1770:ff00
