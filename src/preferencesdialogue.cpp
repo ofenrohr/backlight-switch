@@ -61,9 +61,11 @@
 //									//
 //////////////////////////////////////////////////////////////////////////
 
-PreferencesDialogue::PreferencesDialogue(bool soloMode, QWidget *pnt)
+PreferencesDialogue::PreferencesDialogue(Switcher *kbdSwitcher, bool soloMode, QWidget *pnt)
     : KPageDialog(pnt)
 {
+    switcher = kbdSwitcher;
+
     setObjectName("PreferencesDialogue");
     setFaceType(KPageDialog::Auto);
 
@@ -83,7 +85,7 @@ PreferencesDialogue::PreferencesDialogue(bool soloMode, QWidget *pnt)
     button(QDialogButtonBox::Help)->setText(i18nc("@action:button", "About..."));
     connect(button(QDialogButtonBox::Help), &QPushButton::clicked, this, &PreferencesDialogue::slotAbout);
 
-    mWallpaperPage = new PreferencesWallpaperPage(this);
+    mWallpaperPage = new PreferencesWallpaperPage(switcher, this);
     KPageWidgetItem *page = addPage(mWallpaperPage, i18n("Backlight"));
     page->setIcon(QIcon::fromTheme("user-desktop"));
 
@@ -147,8 +149,8 @@ void PreferencesDialogue::saveSettings()
 //									//
 //////////////////////////////////////////////////////////////////////////
 
-PreferencesWallpaperPage::PreferencesWallpaperPage(QWidget *pnt)
-    : PreferencesPage(pnt)
+PreferencesWallpaperPage::PreferencesWallpaperPage(Switcher *kbdSwitcher, QWidget *pnt)
+    : PreferencesPage(pnt), switcher(kbdSwitcher)
 {
     QGridLayout *gl = new QGridLayout(this);
     setLayout(gl);
@@ -290,7 +292,7 @@ void PreferencesWallpaperPage::slotSetBacklightColor(QTreeWidgetItem *item)
 
 void PreferencesWallpaperPage::showColorSlot(QColor col) {
     //qDebug() << "showColorSlot" << col;
-    Switcher::setColor(col);
+    switcher->setColor(col);
 }
 
 

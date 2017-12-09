@@ -26,6 +26,7 @@
 #define SWITCHER_H
 
 #include <qobject.h>
+#include <QtGui/QColor>
 #include "MSIKeyboard.h"
 
 class QDir;
@@ -41,14 +42,28 @@ public:
     virtual ~Switcher();
 
     static MSIKeyboard *getKeyboard();
-    static void setColor(QColor color);
+    void setColor(QColor color);
+    void fadeColor(QColor from, QColor to, int duration);
 
-protected slots:
+public slots:
     void slotDesktopChanged(int desktop = 0);
-    void slotFileChanged(const QString &file);
+    void fadeEffect();
 
 private:
     static MSIKeyboard *keyboard;
+
+    /// current keyboard backlight color
+    QColor currentColor;
+    /// start color for fade effect
+    QColor fadeFrom;
+    /// destination color for fade effect
+    QColor fadeTo;
+    /// current step in fade effect
+    int fadeStep;
+    /// numer ob steps in fade effect
+    int fadeLength;
+    /// time in ms for single step
+    int stepDuration;
 };
 
 

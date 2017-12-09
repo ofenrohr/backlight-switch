@@ -71,7 +71,7 @@ Switcher::Switcher(QObject *pnt)
 
     getKeyboard()->initKeyboard();
 
-    connect(KWindowSystem::self(), SIGNAL(currentDesktopChanged(int)), SLOT(slotDesktopChanged(int)));
+    connect(KWindowSystem::self(), SIGNAL(currentDesktopChanged(int)), this, SLOT(slotDesktopChanged(int)));
     QTimer::singleShot(0, this, SLOT(slotDesktopChanged()));	// set for current desktop
 
     //connect(KDirWatch::self(), SIGNAL(dirty(const QString &)), SLOT(slotFileChanged(const QString &)));
@@ -99,10 +99,45 @@ void Switcher::slotDesktopChanged(int desktop) {
     Q_ASSERT(ski != NULL);
     const KConfigGroup grp = Settings::self()->config()->group(ski->group());
     QColor color = grp.readEntry(QString::number(desktop), "");
-    setColor(color);
+    fadeColor(currentColor, color, 500);
+}
+
+void Switcher::fadeColor(QColor from, QColor to, int duration) {
+    if (!from.isValid()  || !to.isValid()) {
+        currentColor = to;
+        return;
+    }
+    fadeFrom = from;
+    fadeTo = to;
+    fadeStep = 0;
+    stepDuration = 30;
+    fadeLength = duration / stepDuration;
+
+    fadeEffect();
+}
+
+
+void Switcher::fadeEffect() {
+    double div = ((double)(fadeStep+1)/ (double)(fadeLength));
+    double sr = fadeTo.red() - fadeFrom.red();
+    double sg = fadeTo.green() - fadeFrom.green();
+    double sb = fadeTo.blue() - fadeFrom.blue();
+    int r = fadeFrom.red() + (int)(sr * div);
+    int g = fadeFrom.green() + (int)(sg * div);
+    int b = fadeFrom.blue() + (int)(sb * div);
+
+    setColor(QColor(r,g,b));
+
+    fadeStep++;
+    if (fadeStep < fadeLength) {
+        QTimer::singleShot(stepDuration, this, SLOT(fadeEffect()));
+    } else {
+        currentColor = fadeTo;
+    }
 }
 
 void Switcher::setColor(QColor color) {
+    currentColor = color;
     MSIKeyboard::Color keyboardColor { (unsigned char) color.red(), (unsigned char) color.green(), (unsigned char) color.blue() };
     getKeyboard()->setColor(MSIKeyboard::RegionLeft, keyboardColor);
     getKeyboard()->setColor(MSIKeyboard::RegionMiddle, keyboardColor);
@@ -116,14 +151,6 @@ MSIKeyboard *Switcher::getKeyboard() {
     return Switcher::keyboard;
 }
 
-
-void Switcher::slotFileChanged(const QString &file)
-{
-#ifdef DEBUG_CHANGE
-    qDebug() << file;
-#endif // DEBUG_CHANGE
-    slotDesktopChanged(0);				// update for current desktop
-}
 
 MSIKeyboard* Switcher::keyboard;
 

@@ -79,7 +79,7 @@ void BacklightSwitch::init()
 
     if (mOnlyWindow)
     {
-        PreferencesDialogue *d = new PreferencesDialogue(true);
+        PreferencesDialogue *d = new PreferencesDialogue(mSwitcher, true);
         d->open();
     }
     else
@@ -125,7 +125,7 @@ void BacklightSwitch::slotPreferences()
     if (mPrefsActive) return;				// avoid double invocation
 
     mPrefsActive = true;
-    PreferencesDialogue d(false);
+    PreferencesDialogue d(mSwitcher, false);
     if (d.exec()) mEnableAction->setChecked(Settings::enableSwitcher());
     mPrefsActive = false;
 }

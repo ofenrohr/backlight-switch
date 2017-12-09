@@ -26,6 +26,7 @@
 #define PREFERENCESDIALOGUE_H
 
 #include <kpagedialog.h>
+#include "switcher.h"
 
 
 class QCheckBox;
@@ -44,7 +45,7 @@ class PreferencesDialogue : public KPageDialog
     Q_OBJECT
 
 public:
-    explicit PreferencesDialogue(bool soloMode, QWidget *pnt = NULL);
+    explicit PreferencesDialogue(Switcher *kbdSwitcher, bool soloMode, QWidget *pnt = NULL);
     virtual ~PreferencesDialogue();
 
     void setBacklightColor(const QColor &color);
@@ -59,6 +60,7 @@ protected slots:
 private:
     Q_DISABLE_COPY(PreferencesDialogue)
     PreferencesPage *mWallpaperPage;
+    Switcher *switcher;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -90,7 +92,7 @@ class PreferencesWallpaperPage : public PreferencesPage
     Q_OBJECT
 
 public:
-    explicit PreferencesWallpaperPage(QWidget *pnt = NULL);
+    explicit PreferencesWallpaperPage(Switcher *kbdSwitcher, QWidget *pnt = NULL);
     virtual ~PreferencesWallpaperPage()				{};
 
     void loadSettings();
@@ -113,6 +115,7 @@ private:
 
     //QString mWallpaperPath;
     QColor mBacklightColor;
+    Switcher *switcher;
 };
 
 #endif							// PREFERENCESDIALOGUE_H
