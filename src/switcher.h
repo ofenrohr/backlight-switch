@@ -64,6 +64,8 @@ private:
     int fadeLength;
     /// time in ms for single step
     int stepDuration;
+	/// true when fade is in progress
+	bool isFading;
 };
 
 

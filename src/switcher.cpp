@@ -69,7 +69,10 @@ Switcher::Switcher(QObject *pnt)
 {
     qDebug();
 
+	isFading = false;
+
     getKeyboard()->initKeyboard();
+    currentColor = QColor(255,0,0);
 
     connect(KWindowSystem::self(), SIGNAL(currentDesktopChanged(int)), this, SLOT(slotDesktopChanged(int)));
     QTimer::singleShot(0, this, SLOT(slotDesktopChanged()));	// set for current desktop
@@ -107,12 +110,20 @@ void Switcher::fadeColor(QColor from, QColor to, int duration) {
         currentColor = to;
         return;
     }
-    fadeFrom = from;
-    fadeTo = to;
-    fadeStep = 0;
+
+	fadeStep = 0;
     stepDuration = 30;
     fadeLength = duration / stepDuration;
 
+	if (isFading) {
+		fadeTo = to;
+		return;
+	}
+
+	isFading = true;
+    fadeFrom = from;
+    fadeTo = to;
+    
     fadeEffect();
 }
 
@@ -133,6 +144,7 @@ void Switcher::fadeEffect() {
         QTimer::singleShot(stepDuration, this, SLOT(fadeEffect()));
     } else {
         currentColor = fadeTo;
+		isFading = false;
     }
 }
 
